@@ -7,7 +7,6 @@ import {
   YAxis,
   Tooltip,
   Legend,
-  defs,
 } from 'recharts';
 import type { MonthlyData } from '@/types';
 import { formatCurrency } from '@/utils/formatCurrency';

@@ -85,7 +85,9 @@ export function TopCategoriesBarChart({ data }: TopCategoriesBarChartProps) {
           <LabelList
             dataKey="total"
             position="right"
-            formatter={(v: number) => formatCurrency(v, 'USD', true)}
+            formatter={(value) =>
+              typeof value === 'number' ? formatCurrency(value, 'USD', true) : ''
+            }
             style={{ fontSize: 11, fill: '#9ca3af' }}
           />
         </Bar>

@@ -191,7 +191,10 @@ function CategoryTrendChart({ transactions }: { transactions: Transaction[] }) {
             width={48}
           />
           <Tooltip
-            formatter={(value: number, name: string) => [formatCurrency(value), name]}
+            formatter={(value, name) => [
+              typeof value === 'number' ? formatCurrency(value) : String(value ?? ''),
+              String(name ?? ''),
+            ]}
             contentStyle={{
               backgroundColor: 'var(--tooltip-bg, white)',
               border: '1px solid #e5e7eb',

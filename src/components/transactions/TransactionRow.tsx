@@ -60,7 +60,10 @@ export function TransactionRow({
         </td>
         <td className="max-w-[180px] px-6 py-4 font-medium text-gray-900 dark:text-white">
           <div className="flex items-center gap-2">
-            <span className="truncate" title={transaction.merchant}>
+            <span
+              className="truncate decoration-dotted underline-offset-4 hover:underline"
+              title={transaction.merchant}
+            >
               {transaction.merchant}
             </span>
             {hasExtraDetails && (
@@ -91,7 +94,10 @@ export function TransactionRow({
           </div>
         </td>
         <td className="max-w-[220px] px-6 py-4 text-gray-500 dark:text-gray-400">
-          <span className="block truncate" title={transaction.description || transaction.merchant}>
+          <span
+            className="block truncate decoration-dotted underline-offset-4 hover:underline"
+            title={transaction.description || transaction.merchant}
+          >
             {transaction.description || '-'}
           </span>
         </td>
@@ -165,7 +171,7 @@ export function TransactionRow({
 
       {expanded && (
         <tr className="border-b border-gray-100 bg-primary/5 dark:border-gray-700 dark:bg-primary/10">
-          <td colSpan={7} className="px-6 py-4">
+          <td colSpan={8} className="px-6 py-4">
             <div className="grid gap-3 md:grid-cols-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">

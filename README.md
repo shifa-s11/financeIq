@@ -101,7 +101,8 @@ The app currently includes:
   - last 30 days
   - last 3 months
 - data-relative preset labels based on the latest dataset month
-- saved filter presets
+- named saved filter presets
+- preset deletion with in-app confirmation modal
 - mobile quick filters with advanced bottom-sheet filters
 - sorting by date, amount, and category
 - grouped transaction list by month
@@ -111,6 +112,7 @@ The app currently includes:
 - future-date validation in the transaction form
 - bulk select and export selected rows
 - export filtered transactions to CSV
+- clear-selection action for selected rows
 - undo delete through toast action
 - transaction metadata:
   - account tags
@@ -155,6 +157,15 @@ Role selection is persisted locally for easier demo review.
 - responsive sidebar and mobile bottom navigation
 - portal-based mobile filter sheet
 - keyboard command palette with `Ctrl/Cmd + K`
+- command palette quick actions for:
+  - theme toggle
+  - role switching
+  - jump to add transaction
+- command palette sections:
+  - Quick Actions
+  - Pages
+  - Recent Searches
+  - Transactions
 - route transitions and animated UI feedback
 - toast notifications with contextual messaging
 - empty states for no matching transactions and missing data
@@ -208,6 +219,42 @@ This allows the dashboard to feel more believable and supports richer insights w
   - pagination
 
 - Routes are lazy-loaded to reduce the initial bundle load.
+
+## Approach
+
+The implementation intentionally prioritized reviewer-facing product quality over raw feature count. The build strategy was:
+
+- establish a strong responsive shell first
+- make the data story believable enough for charts and insights to feel meaningful
+- keep state management simple but centralized
+- layer in product-level interactions like presets, command palette, undo flows, and role simulation
+- add lightweight tests around the highest-risk frontend logic
+
+This helped keep the app cohesive while still showing breadth.
+
+## Design Decisions
+
+- `Zustand over Redux`
+  The app has real shared state, but Redux would have added ceremony without improving the demo.
+
+- `Derived state over duplicated state`
+  Summaries, insights, and filtered transaction views are derived from the transaction source of truth so the UI stays consistent.
+
+- `Mock data with realism metadata`
+  Adding account, status, recurring markers, and income-source tags made the UI and insights feel more product-like.
+
+- `Mobile-first filtering`
+  Instead of squeezing every control into a small toolbar, advanced filters move into a bottom sheet on mobile.
+
+- `Command palette`
+  This adds a strong product signal quickly and shows keyboard-aware UX beyond the assignment baseline.
+
+## Tradeoffs
+
+- RBAC is frontend-only because the assignment does not require backend authorization.
+- presets and recent searches use local storage for demo simplicity instead of a persistent user profile
+- the command palette focuses on navigation, quick actions, and transaction search rather than being a full omnibox
+- the app favors polished UX and realistic mock behavior over backend integration or API orchestration
 
 ## Folder Structure
 
@@ -285,40 +332,8 @@ The app includes:
 
 - data is mock-only and not connected to a backend
 - RBAC is frontend-only and not secure authorization
-- saved filter presets are intentionally simple and do not yet support rename/delete
-- command palette currently supports page navigation and transaction search, but not all filter actions
+- presets are stored locally rather than in a persistent user profile
 - charts are optimized for clarity, not export/reporting workflows
-
-## Easy Additions Still Worth Doing
-
-These are the easiest strong improvements if you still want a little more polish without major refactors:
-
-### High impact, low risk
-
-- screenshot gallery in the README
-- named saved filter presets instead of `Preset 1`, `Preset 2`
-- delete saved presets
-- recent searches in the command palette
-- command palette sections like `Pages` and `Transactions`
-- one-click quick actions in the command palette:
-  - `Go to Transactions`
-  - `Open Insights`
-  - `Switch to Admin`
-  - `Toggle dark mode`
-
-### Small UX upgrades
-
-- row hover tooltip for truncated merchant/description text
-- copy transaction details action
-- success toast when a transaction is added with the merchant name and amount
-- “clear all selections” button when bulk export is active
-- preset badge showing the currently active date preset more prominently
-
-### Submission polish
-
-- add final screenshots and a short feature GIF
-- add a short “How I approached the assignment” section
-- add a short “tradeoffs / future improvements” section tailored to the evaluator
 
 ## Future Improvements
 
@@ -331,47 +346,36 @@ These are the easiest strong improvements if you still want a little more polish
 
 ## Screenshots
 
-Place screenshots in `docs/screenshots/` using the filenames below and the README will render them automatically.
-
-```md
-![Dashboard Overview](docs/screenshots/dashboard-overview.png)
-![Dashboard Depth](docs/screenshots/dashboard-depth.png)
-![Transactions Filters](docs/screenshots/transactions-filters.png)
-![Transactions Table](docs/screenshots/transactions-table.png)
-![Insights Page](docs/screenshots/insights-overview.png)
-![Mobile Dashboard](docs/screenshots/mobile-dashboard.png)
-```
+The current screenshots are stored in `public/` and rendered directly below.
 
 ### Dashboard Overview
 
-![Dashboard Overview](docs/screenshots/dashboard-overview.png)
+![Dashboard Overview](public/Screenshot%202026-04-06%20012431.png)
 
 ### Dashboard Depth
 
-![Dashboard Depth](docs/screenshots/dashboard-depth.png)
+![Dashboard Depth](public/Screenshot%202026-04-06%20012544.png)
 
 ### Transactions Filters
 
-![Transactions Filters](docs/screenshots/transactions-filters.png)
+![Transactions Filters](public/Screenshot%202026-04-06%20012617.png)
 
 ### Transactions Table
 
-![Transactions Table](docs/screenshots/transactions-table.png)
+![Transactions Table](public/Screenshot%202026-04-06%20012636.png)
 
 ### Insights Overview
 
-![Insights Overview](docs/screenshots/insights-overview.png)
+![Insights Overview](public/Screenshot%202026-04-06%20012703.png)
 
 ### Mobile Dashboard
 
-![Mobile Dashboard](docs/screenshots/mobile-dashboard.png)
+![Mobile Dashboard](public/Screenshot%202026-04-06%20012744.png)
 
-Suggested screenshot set:
+### Demo GIF
 
-- Dashboard overview
-- Cumulative savings and supporting widgets
-- Transactions filters and bulk actions
-- Transactions table with grouping and metadata
-- Insights overview
-- Mobile dashboard
-- Command palette
+Add a short demo GIF here if you export one for command palette, filter flow, or mobile interactions.
+
+```md
+![FinanceIQ Demo](public/financeiq-demo.gif)
+```

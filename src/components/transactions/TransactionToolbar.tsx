@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
   Download,
+  PencilLine,
   Plus,
   Search,
   SlidersHorizontal,
+  Trash2,
   X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -32,23 +34,25 @@ interface TransactionToolbarProps {
   onAmountMinChange: (value: string) => void;
   onAmountMaxChange: (value: string) => void;
   onClearFilters: () => void;
+  onClearSelection: () => void;
   onExport: () => void;
   onExportSelected: () => void;
   onAddTransaction: () => void;
   onSavePreset: () => void;
   onApplyPreset: (name: string) => void;
+  onDeletePreset: (name: string) => void;
 }
 
 function getMonthInputValue(date: string) {
   return date ? date.slice(0, 7) : '';
 }
 
-const DATE_PRESETS: Array<{ value: Filters['datePreset']; label: string }> = [
-  { value: 'all', label: 'All time' },
-  { value: 'thisMonth', label: 'This month' },
-  { value: 'lastMonth', label: 'Last month' },
-  { value: 'last30Days', label: 'Last 30 days' },
-  { value: 'last3Months', label: 'Last 3 months' },
+const DATE_PRESETS: Array<{ value: Filters['datePreset'] }> = [
+  { value: 'all' },
+  { value: 'thisMonth' },
+  { value: 'lastMonth' },
+  { value: 'last30Days' },
+  { value: 'last3Months' },
 ];
 
 function QuickToggle({
@@ -95,10 +99,12 @@ interface AdvancedFiltersProps {
   onClearFilters: () => void;
   onSavePreset: () => void;
   onApplyPreset: (name: string) => void;
+  onDeletePreset: (name: string) => void;
 }
 
 function AdvancedFilters({
   filters,
+  presetLabels,
   hasActiveFilters,
   savedPresetNames,
   onTypeChange,
@@ -114,37 +120,51 @@ function AdvancedFilters({
   onClearFilters,
   onSavePreset,
   onApplyPreset,
-  presetLabels,
+  onDeletePreset,
 }: AdvancedFiltersProps) {
   return (
     <div className="space-y-4">
-      {savedPresetNames.length > 0 && (
-        <div className="space-y-2">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              Saved presets
-            </p>
-            <Button variant="ghost" size="sm" onClick={onSavePreset}>
-              Save current
-            </Button>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {savedPresetNames.map((name) => (
-              <Button key={name} variant="ghost" size="sm" onClick={() => onApplyPreset(name)}>
-                {name}
-              </Button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {savedPresetNames.length === 0 && (
-        <div className="flex justify-end">
-          <Button variant="ghost" size="sm" onClick={onSavePreset}>
-            Save current preset
+      <div className="space-y-2">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            Saved presets
+          </p>
+          <Button variant="ghost" size="sm" onClick={onSavePreset} icon={<PencilLine size={14} />}>
+            Save current
           </Button>
         </div>
-      )}
+
+        {savedPresetNames.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {savedPresetNames.map((name) => (
+              <div
+                key={name}
+                className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2 py-1 dark:border-gray-600 dark:bg-gray-800"
+              >
+                <button
+                  type="button"
+                  onClick={() => onApplyPreset(name)}
+                  className="rounded-full px-2 py-0.5 text-xs font-medium text-gray-700 transition hover:text-primary focus:outline-none focus:ring-4 focus:ring-primary/15 dark:text-gray-200"
+                >
+                  {name}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onDeletePreset(name)}
+                  aria-label={`Delete preset ${name}`}
+                  className="rounded-full p-1 text-gray-400 transition hover:bg-gray-100 hover:text-red-500 focus:outline-none focus:ring-4 focus:ring-primary/15 dark:hover:bg-gray-700"
+                >
+                  <Trash2 size={12} />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Save your current filter combination to reuse it in one click.
+          </p>
+        )}
+      </div>
 
       <div className="space-y-2">
         <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
@@ -327,11 +347,13 @@ export function TransactionToolbar(props: TransactionToolbarProps) {
     onAmountMinChange,
     onAmountMaxChange,
     onClearFilters,
+    onClearSelection,
     onExport,
     onExportSelected,
     onAddTransaction,
     onSavePreset,
     onApplyPreset,
+    onDeletePreset,
   } = props;
 
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -354,7 +376,7 @@ export function TransactionToolbar(props: TransactionToolbarProps) {
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary/70 dark:text-primary-light/70">
           Control Center
         </p>
-        <div className="flex flex-col gap-1 md:flex-row md:items-end md:justify-between">
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <h2 className="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">
               Transaction Explorer
@@ -365,6 +387,11 @@ export function TransactionToolbar(props: TransactionToolbarProps) {
           </div>
 
           <div className="hidden flex-wrap items-center gap-2 md:flex">
+            {selectedCount > 0 && (
+              <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary dark:bg-primary/15 dark:text-primary-light">
+                {selectedCount} selected
+              </span>
+            )}
             {canExport && (
               <Button variant="secondary" size="sm" onClick={onExport} icon={<Download size={14} />}>
                 Export CSV
@@ -373,6 +400,11 @@ export function TransactionToolbar(props: TransactionToolbarProps) {
             {canExport && selectedCount > 0 && (
               <Button variant="secondary" size="sm" onClick={onExportSelected}>
                 Export Selected ({selectedCount})
+              </Button>
+            )}
+            {selectedCount > 0 && (
+              <Button variant="ghost" size="sm" onClick={onClearSelection}>
+                Clear selection
               </Button>
             )}
             <Button variant="ghost" size="sm" onClick={onSavePreset}>
@@ -405,6 +437,11 @@ export function TransactionToolbar(props: TransactionToolbarProps) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2 md:hidden">
+          {selectedCount > 0 && (
+            <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary dark:bg-primary/15 dark:text-primary-light">
+              {selectedCount} selected
+            </span>
+          )}
           <QuickToggle
             active={filters.type === 'expense'}
             label="Expenses"
@@ -433,9 +470,14 @@ export function TransactionToolbar(props: TransactionToolbarProps) {
             </Button>
           )}
           {canExport && selectedCount > 0 && (
-            <Button variant="secondary" size="sm" onClick={onExportSelected}>
-              Selected ({selectedCount})
-            </Button>
+            <>
+              <Button variant="secondary" size="sm" onClick={onExportSelected}>
+                Selected ({selectedCount})
+              </Button>
+              <Button variant="ghost" size="sm" onClick={onClearSelection}>
+                Clear
+              </Button>
+            </>
           )}
           {canAdd && (
             <Button variant="primary" size="sm" onClick={onAddTransaction} icon={<Plus size={14} />}>
@@ -468,6 +510,7 @@ export function TransactionToolbar(props: TransactionToolbarProps) {
           onClearFilters={onClearFilters}
           onSavePreset={onSavePreset}
           onApplyPreset={onApplyPreset}
+          onDeletePreset={onDeletePreset}
         />
       </div>
 
@@ -516,6 +559,7 @@ export function TransactionToolbar(props: TransactionToolbarProps) {
                 onClearFilters={onClearFilters}
                 onSavePreset={onSavePreset}
                 onApplyPreset={onApplyPreset}
+                onDeletePreset={onDeletePreset}
               />
 
               <Button variant="primary" onClick={() => setMobileFiltersOpen(false)} className="mt-5 w-full">

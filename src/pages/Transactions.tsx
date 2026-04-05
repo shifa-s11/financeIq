@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { format, subMonths } from 'date-fns';
 import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Modal } from '@/components/ui/Modal';
 import { Pagination } from '@/components/transactions/Pagination';
 import { TransactionModal } from '@/components/transactions/TransactionModal';
 import { TransactionTable } from '@/components/transactions/TransactionTable';
@@ -51,6 +53,11 @@ export default function Transactions() {
   const [editing, setEditing] = useState<Transaction | null>(null);
   const [searchValue, setSearchValue] = useState(filters.search);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [presetName, setPresetName] = useState('');
+  const [presetModalOpen, setPresetModalOpen] = useState(false);
+  const [presetNameError, setPresetNameError] = useState('');
+  const [presetOverwrite, setPresetOverwrite] = useState(false);
+  const [presetToDelete, setPresetToDelete] = useState<string | null>(null);
   const [savedPresets, setSavedPresets] = useState<SavedFilterPreset[]>(() => {
     try {
       const raw = localStorage.getItem(FILTER_PRESETS_STORAGE_KEY);
@@ -80,14 +87,34 @@ export default function Transactions() {
     setPage(1);
   }, [filters]);
 
+  useEffect(() => {
+    const handleOpenAdd = () => {
+      setEditing(null);
+      setIsModalOpen(true);
+    };
+
+    document.addEventListener(
+      'financeiq:add-transaction',
+      handleOpenAdd as EventListener
+    );
+    return () => {
+      document.removeEventListener(
+        'financeiq:add-transaction',
+        handleOpenAdd as EventListener
+      );
+    };
+  }, []);
+
   const { filteredTransactions, paginatedTransactions, totalPages, hasActiveFilters } =
     useTransactionsView(transactions, filters, page, PAGE_SIZE);
 
   useEffect(() => {
     setSelectedIds((current) =>
-      current.filter((id) => paginatedTransactions.some((transaction) => transaction.id === id))
+      current.filter((id) =>
+        filteredTransactions.some((transaction) => transaction.id === id)
+      )
     );
-  }, [paginatedTransactions]);
+  }, [filteredTransactions]);
 
   const exportFilename = useMemo(() => {
     const date = new Date().toISOString().slice(0, 10);
@@ -194,10 +221,48 @@ export default function Transactions() {
   };
 
   const handleSavePreset = () => {
-    const baseName = `Preset ${savedPresets.length + 1}`;
-    const nextPreset = { name: baseName, filters: { ...filters, search: searchValue } };
+    setPresetName(`High value ${savedPresets.length + 1}`);
+    setPresetNameError('');
+    setPresetOverwrite(false);
+    setPresetModalOpen(true);
+  };
+
+  const handleConfirmSavePreset = () => {
+    const name = presetName.trim();
+    if (!name) {
+      setPresetNameError('Please enter a preset name.');
+      return;
+    }
+
+    const nextPreset = { name, filters: { ...filters, search: searchValue } };
+    const existingIndex = savedPresets.findIndex(
+      (preset) => preset.name.toLowerCase() === name.toLowerCase()
+    );
+
+    if (existingIndex >= 0) {
+      if (!presetOverwrite) {
+        setPresetOverwrite(true);
+        setPresetNameError(`"${name}" already exists. Save again to replace it.`);
+        return;
+      }
+
+      const nextPresets = [...savedPresets];
+      nextPresets[existingIndex] = nextPreset;
+      persistPresets(nextPresets);
+      addToast(`Updated filter preset "${name}".`, 'success');
+      setPresetModalOpen(false);
+      setPresetName('');
+      setPresetOverwrite(false);
+      setPresetNameError('');
+      return;
+    }
+
     persistPresets([...savedPresets, nextPreset]);
-    addToast(`Saved filter preset "${baseName}".`, 'success');
+    addToast(`Saved filter preset "${name}".`, 'success');
+    setPresetModalOpen(false);
+    setPresetName('');
+    setPresetOverwrite(false);
+    setPresetNameError('');
   };
 
   const handleApplyPreset = (name: string) => {
@@ -209,6 +274,21 @@ export default function Transactions() {
     });
     setSearchValue(preset.filters.search);
     addToast(`Applied filter preset "${name}".`, 'info');
+  };
+
+  const handleDeletePreset = (name: string) => {
+    setPresetToDelete(name);
+  };
+
+  const confirmDeletePreset = () => {
+    if (!presetToDelete) {
+      return;
+    }
+
+    const nextPresets = savedPresets.filter((preset) => preset.name !== presetToDelete);
+    persistPresets(nextPresets);
+    addToast(`Deleted filter preset "${presetToDelete}".`, 'info');
+    setPresetToDelete(null);
   };
 
   return (
@@ -257,11 +337,13 @@ export default function Transactions() {
             clearFilters();
             setSearchValue('');
           }}
+          onClearSelection={() => setSelectedIds([])}
           onExport={handleExport}
           onExportSelected={handleExportSelected}
           onAddTransaction={handleAddTransaction}
           onSavePreset={handleSavePreset}
           onApplyPreset={handleApplyPreset}
+          onDeletePreset={handleDeletePreset}
         />
 
         <TransactionTable
@@ -300,6 +382,108 @@ export default function Transactions() {
         onClose={handleCloseModal}
         editing={editing}
       />
+
+      <Modal
+        isOpen={presetModalOpen}
+        onClose={() => {
+          setPresetModalOpen(false);
+          setPresetNameError('');
+          setPresetOverwrite(false);
+        }}
+        title="Save Filter Preset"
+      >
+        <form
+          className="space-y-4"
+          onSubmit={(event) => {
+            event.preventDefault();
+            handleConfirmSavePreset();
+          }}
+        >
+          <div>
+            <label
+              htmlFor="preset-name"
+              className="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-300"
+            >
+              Preset name
+            </label>
+            <input
+              id="preset-name"
+              type="text"
+              value={presetName}
+              onChange={(event) => {
+                setPresetName(event.target.value);
+                setPresetNameError('');
+                setPresetOverwrite(false);
+              }}
+              className={`w-full rounded-xl border px-3 py-2.5 text-sm transition focus:outline-none focus-visible:ring-4 ${
+                presetNameError
+                  ? 'border-red-400 bg-white text-gray-900 focus-visible:ring-red-400/20 dark:bg-gray-700 dark:text-gray-100'
+                  : 'border-gray-200 bg-white text-gray-900 focus-visible:ring-primary/15 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100'
+              }`}
+              placeholder="e.g. High spend vendors"
+            />
+            {presetNameError && (
+              <p className="mt-1 text-xs text-red-500">{presetNameError}</p>
+            )}
+            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              Save the current search, date, amount, merchant, and category filters as a reusable view.
+            </p>
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setPresetModalOpen(false);
+                setPresetNameError('');
+                setPresetOverwrite(false);
+              }}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" className="flex-1">
+              {presetOverwrite ? 'Replace preset' : 'Save preset'}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
+        isOpen={Boolean(presetToDelete)}
+        onClose={() => setPresetToDelete(null)}
+        title="Delete Preset"
+      >
+        <div className="space-y-4">
+          <p className="text-sm leading-6 text-gray-600 dark:text-gray-300">
+            Delete the preset{' '}
+            <span className="font-semibold text-gray-900 dark:text-white">
+              {presetToDelete}
+            </span>
+            ? This only removes the saved view and does not affect your transactions.
+          </p>
+
+          <div className="flex gap-3 pt-2">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setPresetToDelete(null)}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="danger"
+              onClick={confirmDeletePreset}
+              className="flex-1"
+            >
+              Delete preset
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

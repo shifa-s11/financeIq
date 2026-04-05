@@ -1,4 +1,4 @@
-import { parseISO, format, getMonth, getYear } from 'date-fns';
+import { parseISO, format, isSameMonth } from 'date-fns';
 import type {
   Transaction,
   MonthlyData,
@@ -64,22 +64,29 @@ export function getCategoryBreakdown(
 export function getCurrentMonthSummary(
   transactions: Transaction[]
 ): CurrentMonthSummary {
-  const now = new Date();
-  const currentMonth = getMonth(now);
-  const currentYear = getYear(now);
+  if (!transactions.length) {
+    return {
+      income: 0,
+      expenses: 0,
+      balance: 0,
+      savingsRate: 0,
+      vsLastMonth: { income: 0, expenses: 0 },
+    };
+  }
 
-  const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-  const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+  const latestDate = parseISO(
+    [...transactions].sort((a, b) => b.date.localeCompare(a.date))[0].date
+  );
 
-  const filterByMonth = (m: number, y: number) =>
-    transactions.filter((tx) => {
-      const d = parseISO(tx.date);
-      return getMonth(d) === m && getYear(d) === y;
-    });
+  const prevDate = new Date(latestDate);
+  prevDate.setMonth(prevDate.getMonth() - 1);
 
-  // Use June 2025 as "current" since our data ends there
-  const current = filterByMonth(5, 2025);
-  const previous = filterByMonth(4, 2025);
+  const current = transactions.filter((tx) =>
+    isSameMonth(parseISO(tx.date), latestDate)
+  );
+  const previous = transactions.filter((tx) =>
+    isSameMonth(parseISO(tx.date), prevDate)
+  );
 
   const sum = (txs: Transaction[], type: 'income' | 'expense') =>
     txs.filter((tx) => tx.type === type).reduce((s, tx) => s + tx.amount, 0);

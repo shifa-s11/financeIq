@@ -7,26 +7,44 @@ import {
 } from 'recharts';
 import { getCategoryColor } from '@/utils/getCategoryColor';
 import { formatCurrency } from '@/utils/formatCurrency';
+import { useChartColors } from '@/hooks/useDarkMode';
 import type { CategoryBreakdown } from '@/types';
 
 interface SpendingPieChartProps {
   data: CategoryBreakdown[];
 }
 
-interface CustomTooltipProps {
+interface TooltipProps {
   active?: boolean;
-  payload?: Array<{ name: string; value: number; payload: CategoryBreakdown }>;
+  payload?: Array<{
+    name: string;
+    value: number;
+    payload: CategoryBreakdown;
+  }>;
 }
 
-function CustomTooltip({ active, payload }: CustomTooltipProps) {
+function CustomTooltip({ active, payload }: TooltipProps) {
+  const colors = useChartColors();
   if (!active || !payload || payload.length === 0) return null;
   const item = payload[0];
+
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-lg p-3 text-sm">
-      <p className="font-semibold text-gray-700 dark:text-gray-200">{item.name}</p>
-      <p className="text-gray-500 dark:text-gray-400 mt-0.5">
+    <div
+      className="rounded-xl shadow-lg p-3 text-sm border"
+      style={{
+        backgroundColor: colors.tooltip.bg,
+        borderColor: colors.tooltip.border,
+      }}
+    >
+      <p
+        className="font-semibold"
+        style={{ color: colors.tooltip.text }}
+      >
+        {item.name}
+      </p>
+      <p className="mt-0.5" style={{ color: colors.tooltip.muted }}>
         {formatCurrency(item.value)}{' '}
-        <span className="text-gray-400">({item.payload.percentage}%)</span>
+        <span>({item.payload.percentage}%)</span>
       </p>
     </div>
   );
@@ -74,7 +92,10 @@ export function SpendingPieChart({ data }: SpendingPieChartProps) {
         {data.map((entry) => {
           const color = getCategoryColor(entry.category);
           return (
-            <div key={entry.category} className="flex items-center gap-2 text-xs">
+            <div
+              key={entry.category}
+              className="flex items-center gap-2 text-xs"
+            >
               <span
                 className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                 style={{ backgroundColor: color.hex }}

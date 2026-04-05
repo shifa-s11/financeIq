@@ -5,11 +5,15 @@ import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { BottomNav } from './BottomNav';
 import { ToastContainer } from '@/components/ui/Toast';
+import { useSidebar } from '@/context/useSidebar';
+import { SidebarProvider } from '@/context/SidebarProvider';
 import useFinanceStore from '@/store/useFinanceStore';
 
-export function AppLayout() {
+function LayoutInner() {
   const location = useLocation();
+  const { collapsed } = useSidebar();
   const theme = useFinanceStore((s) => s.theme);
+  const sidebarOffset = collapsed ? '64px' : '240px';
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -20,13 +24,16 @@ export function AppLayout() {
   }, [theme]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 md:flex overflow-x-clip">
       <Sidebar />
 
-      {/* Main area */}
-      <div className="flex flex-col flex-1 min-h-screen md:pl-60 transition-all duration-[250ms]" id="main-content">
+      {/* Main area shifts only on desktop, stays flush on mobile */}
+      <div
+        className="app-shell-main flex min-h-screen w-full flex-col"
+        style={{ ['--sidebar-offset' as string]: sidebarOffset }}
+      >
         <TopBar />
-        <main className="flex-1 p-4 md:p-6 pb-24 md:pb-6 overflow-auto">
+        <main className="flex-1 overflow-x-hidden p-4 pb-24 md:p-6 md:pb-6">
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
@@ -44,5 +51,13 @@ export function AppLayout() {
       <BottomNav />
       <ToastContainer />
     </div>
+  );
+}
+
+export function AppLayout() {
+  return (
+    <SidebarProvider>
+      <LayoutInner />
+    </SidebarProvider>
   );
 }

@@ -14,7 +14,13 @@
 }
 
 @layer base {
+  html {
+    overflow-x: hidden;
+  }
+
   body {
+    min-width: 320px;
+    overflow-x: hidden;
     background-color: var(--color-gray-50);
     color: var(--color-gray-900);
     font-family: var(--font-family-sans);
@@ -24,5 +30,17 @@
   .dark body {
     background-color: var(--color-gray-900);
     color: var(--color-gray-100);
+  }
+}
+
+@layer components {
+  .app-shell-main {
+    padding-left: 0;
+  }
+
+  @media (min-width: 768px) {
+    .app-shell-main {
+      padding-left: var(--sidebar-offset);
+    }
   }
 }

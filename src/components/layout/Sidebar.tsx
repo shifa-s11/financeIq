@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -12,6 +11,7 @@ import {
   Wallet,
 } from 'lucide-react';
 import useFinanceStore from '@/store/useFinanceStore';
+import { useSidebar } from '@/context/useSidebar';
 
 const NAV_LINKS = [
   { to: '/',             label: 'Dashboard',    icon: LayoutDashboard },
@@ -20,30 +20,10 @@ const NAV_LINKS = [
 ];
 
 export function Sidebar() {
-  const [collapsed, setCollapsed] = useState(() => {
-    try {
-      return localStorage.getItem('sidebar-collapsed') === 'true';
-    } catch {
-      return false;
-    }
-  });
-
+  const { collapsed, toggle } = useSidebar();
   const { theme, toggleTheme, selectedRole, setRole } = useFinanceStore();
   const location = useLocation();
   const isDark = theme === 'dark';
-
-  const toggleCollapse = () => {
-    setCollapsed((prev) => {
-      const next = !prev;
-      localStorage.setItem('sidebar-collapsed', String(next));
-      // Update main content padding
-      const main = document.getElementById('main-content');
-      if (main) {
-        main.style.paddingLeft = next ? '64px' : '';
-      }
-      return next;
-    });
-  };
 
   return (
     <motion.aside
@@ -91,7 +71,9 @@ export function Sidebar() {
             >
               <Icon size={18} className="flex-shrink-0" />
               {!collapsed && (
-                <span className="text-sm font-medium whitespace-nowrap">{label}</span>
+                <span className="text-sm font-medium whitespace-nowrap">
+                  {label}
+                </span>
               )}
             </NavLink>
           );
@@ -118,7 +100,7 @@ export function Sidebar() {
           </div>
         )}
 
-        {/* Theme Toggle — ALWAYS visible */}
+        {/* Theme Toggle — always visible */}
         <button
           onClick={toggleTheme}
           title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
@@ -143,7 +125,7 @@ export function Sidebar() {
 
         {/* Collapse Toggle */}
         <button
-          onClick={toggleCollapse}
+          onClick={toggle}
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           className={`
             flex items-center rounded-xl transition-all duration-150

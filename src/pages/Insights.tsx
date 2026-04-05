@@ -10,6 +10,7 @@ import { getInsightNarratives } from '@/utils/calculateSummary';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { formatDate } from '@/utils/formatDate';
 import { getCategoryColor } from '@/utils/getCategoryColor';
+import { setPageMetadata } from '@/utils/setPageMetadata';
 import type { Transaction } from '@/types';
 
 interface HeatmapTooltip {
@@ -220,7 +221,11 @@ export default function Insights() {
   const narratives = useMemo(() => getInsightNarratives(transactions), [transactions]);
 
   useEffect(() => {
-    document.title = 'Insights - FinanceIQ';
+    setPageMetadata({
+      title: 'Insights',
+      description:
+        'Explore FinanceIQ insights with recurring subscription detection, unusual spending alerts, savings projections, trend charts, and monthly comparisons.',
+    });
   }, []);
 
   if (transactions.length === 0) {

@@ -14,6 +14,7 @@ import useFinanceStore from '@/store/useFinanceStore';
 import { getReferenceDate } from '@/utils/calculateSummary';
 import { exportToCSV } from '@/utils/exportCSV';
 import { formatCurrency } from '@/utils/formatCurrency';
+import { setPageMetadata } from '@/utils/setPageMetadata';
 import type { Category, Filters, Transaction } from '@/types';
 
 const PAGE_SIZE = 15;
@@ -70,7 +71,11 @@ export default function Transactions() {
   const debouncedSearch = useDebounce(searchValue, 300);
 
   useEffect(() => {
-    document.title = 'Transactions - FinanceIQ';
+    setPageMetadata({
+      title: 'Transactions',
+      description:
+        'Review, filter, group, and export financial activity in FinanceIQ with saved presets, bulk actions, and responsive transaction management.',
+    });
   }, []);
 
   useEffect(() => {

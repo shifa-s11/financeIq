@@ -20,6 +20,7 @@ import useFinanceStore from '@/store/useFinanceStore';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { formatDate } from '@/utils/formatDate';
 import { getCategoryColor } from '@/utils/getCategoryColor';
+import { setPageMetadata } from '@/utils/setPageMetadata';
 
 interface SummaryCardProps {
   label: string;
@@ -129,7 +130,11 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.title = 'Dashboard - FinanceIQ';
+    setPageMetadata({
+      title: 'Dashboard',
+      description:
+        'View FinanceIQ dashboard summaries, spending breakdowns, balance trends, savings momentum, top merchants, and recent transaction activity.',
+    });
     const timeout = window.setTimeout(() => setLoading(false), 800);
     return () => window.clearTimeout(timeout);
   }, []);

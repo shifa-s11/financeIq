@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { format, subMonths } from 'date-fns';
+import { useLocation } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
@@ -40,6 +41,7 @@ function toMonthBoundary(value: string, boundary: 'start' | 'end') {
 }
 
 export default function Transactions() {
+  const location = useLocation();
   const transactions = useFinanceStore((state) => state.transactions);
   const filters = useFinanceStore((state) => state.filters);
   const setFilter = useFinanceStore((state) => state.setFilter);
@@ -109,6 +111,14 @@ export default function Transactions() {
       );
     };
   }, []);
+
+  useEffect(() => {
+    if (location.state && (location.state as { openAddTransaction?: boolean }).openAddTransaction) {
+      setEditing(null);
+      setIsModalOpen(true);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const { filteredTransactions, paginatedTransactions, totalPages, hasActiveFilters } =
     useTransactionsView(transactions, filters, page, PAGE_SIZE);

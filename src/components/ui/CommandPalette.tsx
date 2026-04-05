@@ -182,10 +182,7 @@ export function CommandPalette() {
         badge: 'Action',
         icon: <Plus size={14} />,
         action: () => {
-          navigate('/transactions');
-          window.setTimeout(() => {
-            document.dispatchEvent(new CustomEvent('financeiq:add-transaction'));
-          }, 80);
+          navigate('/transactions', { state: { openAddTransaction: true } });
           setIsOpen(false);
         },
       },

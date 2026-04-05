@@ -371,11 +371,3 @@ The current screenshots are stored in `public/` and rendered directly below.
 ### Mobile Dashboard
 
 ![Mobile Dashboard](public/Screenshot%202026-04-06%20012744.png)
-
-### Demo GIF
-
-Add a short demo GIF here if you export one for command palette, filter flow, or mobile interactions.
-
-```md
-![FinanceIQ Demo](public/financeiq-demo.gif)
-```

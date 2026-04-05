@@ -77,13 +77,14 @@ export function MonthlyComparisonChart({ data }: Props) {
   }));
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <BarChart
-        data={chartData}
-        margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
-        barGap={3}
-        barCategoryGap="25%"
-      >
+    <div role="img" aria-label="Monthly income, expenses, and savings bar chart">
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart
+          data={chartData}
+          margin={{ top: 5, right: 10, left: 0, bottom: 5 }}
+          barGap={3}
+          barCategoryGap="25%"
+        >
         <CartesianGrid
           strokeDasharray="3 3"
           stroke={colors.grid}
@@ -133,7 +134,8 @@ export function MonthlyComparisonChart({ data }: Props) {
           radius={[4, 4, 0, 0]}
           maxBarSize={20}
         />
-      </BarChart>
-    </ResponsiveContainer>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 }

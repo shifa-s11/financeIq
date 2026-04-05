@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { SidebarContext } from './SidebarContext';
 
 export function SidebarProvider({ children }: { children: React.ReactNode }) {
@@ -10,13 +10,13 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
     }
   });
 
-  const toggle = () => {
+  const toggle = useCallback(() => {
     setCollapsed((prev) => {
       const next = !prev;
       localStorage.setItem('sidebar-collapsed', String(next));
       return next;
     });
-  };
+  }, []);
 
   return (
     <SidebarContext.Provider value={{ collapsed, toggle }}>

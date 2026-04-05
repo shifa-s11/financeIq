@@ -58,12 +58,13 @@ export function TopCategoriesBarChart({ data }: Props) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={240}>
-      <BarChart
-        data={top5}
-        layout="vertical"
-        margin={{ top: 0, right: 60, left: 0, bottom: 0 }}
-      >
+    <div role="img" aria-label="Top spending categories bar chart">
+      <ResponsiveContainer width="100%" height={240}>
+        <BarChart
+          data={top5}
+          layout="vertical"
+          margin={{ top: 0, right: 60, left: 0, bottom: 0 }}
+        >
         <XAxis type="number" hide domain={[0, 'dataMax']} />
         <YAxis
           type="category"
@@ -98,7 +99,8 @@ export function TopCategoriesBarChart({ data }: Props) {
             style={{ fontSize: 11, fill: colors.tick }}
           />
         </Bar>
-      </BarChart>
-    </ResponsiveContainer>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 }

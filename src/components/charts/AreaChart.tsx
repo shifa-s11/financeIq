@@ -101,11 +101,12 @@ export function BalanceAreaChart({ data }: AreaChartProps) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={280}>
-      <ComposedChart
-        data={data}
-        margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-      >
+    <div role="img" aria-label="Income and expenses area chart by month">
+      <ResponsiveContainer width="100%" height={280}>
+        <ComposedChart
+          data={data}
+          margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+        >
         <defs>
           <linearGradient id="incomeGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
@@ -161,7 +162,8 @@ export function BalanceAreaChart({ data }: AreaChartProps) {
           dot={{ fill: colors.expense, r: 4, strokeWidth: 0 }}
           activeDot={{ r: 6, strokeWidth: 0 }}
         />
-      </ComposedChart>
-    </ResponsiveContainer>
+        </ComposedChart>
+      </ResponsiveContainer>
+    </div>
   );
 }

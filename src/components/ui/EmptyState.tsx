@@ -11,58 +11,72 @@ interface EmptyStateProps {
 
 export function EmptyState({ title, description, action }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-      {/* Inline SVG illustration */}
-      <svg
-        width="120"
-        height="120"
-        viewBox="0 0 120 120"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="mb-6 opacity-40"
-      >
-        <rect
-          x="20" y="30" width="80" height="60"
-          rx="8"
-          className="fill-gray-200 dark:fill-gray-600"
-        />
-        <rect
-          x="30" y="20" width="60" height="10"
-          rx="4"
-          className="fill-gray-300 dark:fill-gray-500"
-        />
-        <circle
-          cx="60" cy="62"
-          r="14"
-          className="fill-gray-300 dark:fill-gray-500"
-        />
-        <path
-          d="M54 62l4 4 8-8"
-          stroke="white"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <rect
-          x="35" y="82" width="20" height="4"
-          rx="2"
-          className="fill-gray-300 dark:fill-gray-500"
-        />
-        <rect
-          x="60" y="82" width="25" height="4"
-          rx="2"
-          className="fill-gray-200 dark:fill-gray-600"
-        />
-      </svg>
+    <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
+      <div className="relative mb-6">
+        <div className="absolute inset-0 rounded-full bg-primary/10 blur-2xl" />
+        <svg
+          width="128"
+          height="128"
+          viewBox="0 0 128 128"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="relative opacity-95"
+        >
+          <rect
+            x="22"
+            y="34"
+            width="84"
+            height="60"
+            rx="16"
+            className="fill-slate-100 dark:fill-slate-800"
+          />
+          <rect
+            x="34"
+            y="24"
+            width="60"
+            height="14"
+            rx="7"
+            className="fill-primary/20"
+          />
+          <circle cx="64" cy="63" r="15" className="fill-primary/15" />
+          <path
+            d="M58 63l4 4 10-10"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-primary"
+          />
+          <rect
+            x="40"
+            y="87"
+            width="18"
+            height="4"
+            rx="2"
+            className="fill-slate-300 dark:fill-slate-600"
+          />
+          <rect
+            x="64"
+            y="87"
+            width="24"
+            height="4"
+            rx="2"
+            className="fill-slate-200 dark:fill-slate-700"
+          />
+        </svg>
+      </div>
 
-      <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-2">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary/70 dark:text-primary-light/70">
+        Nothing here yet
+      </p>
+      <h3 className="mt-2 text-xl font-semibold tracking-tight text-gray-800 dark:text-gray-100">
         {title}
       </h3>
-      <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs mb-6">
+      <p className="mt-2 max-w-sm text-sm leading-6 text-gray-500 dark:text-gray-400">
         {description}
       </p>
       {action && (
-        <Button variant="primary" onClick={action.onClick}>
+        <Button variant="primary" onClick={action.onClick} className="mt-6">
           {action.label}
         </Button>
       )}

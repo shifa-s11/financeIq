@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import useFinanceStore from '@/store/useFinanceStore';
 
 export function useDarkMode() {
-  const theme = useFinanceStore((s) => s.theme);
+  const theme = useFinanceStore((state) => state.theme);
   const [isDark, setIsDark] = useState(theme === 'dark');
 
   useEffect(() => {
@@ -16,17 +16,18 @@ export function useChartColors() {
   const isDark = useDarkMode();
 
   return {
-    grid: isDark ? '#374151' : '#e5e7eb',
-    tick: isDark ? '#9ca3af' : '#6b7280',
+    grid: isDark ? '#334155' : '#dbe1ea',
+    tick: isDark ? '#94a3b8' : '#64748b',
+    axis: isDark ? '#475569' : '#cbd5e1',
     tooltip: {
-      bg: isDark ? '#1f2937' : '#ffffff',
-      border: isDark ? '#374151' : '#e5e7eb',
-      text: isDark ? '#f3f4f6' : '#111827',
-      muted: isDark ? '#9ca3af' : '#6b7280',
+      bg: isDark ? '#111827' : '#ffffff',
+      border: isDark ? '#334155' : '#e2e8f0',
+      text: isDark ? '#f8fafc' : '#0f172a',
+      muted: isDark ? '#94a3b8' : '#64748b',
     },
-    income: '#10b981',
-    expense: '#ef4444',
-    primary: '#6366f1',
-    amber: '#f59e0b',
+    income: isDark ? '#34d399' : '#10b981',
+    expense: isDark ? '#fb7185' : '#ef4444',
+    primary: isDark ? '#8b93ff' : '#6366f1',
+    amber: isDark ? '#fbbf24' : '#f59e0b',
   };
 }

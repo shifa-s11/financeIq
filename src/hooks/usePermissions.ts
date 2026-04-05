@@ -9,12 +9,13 @@ export interface Permissions {
 }
 
 export function usePermissions(): Permissions {
-  const role = useFinanceStore((s) => s.selectedRole);
+  const role = useFinanceStore((state) => state.selectedRole);
+
   return {
     canAdd: role === 'admin',
     canEdit: role === 'admin',
     canDelete: role === 'admin',
-    canExport: role === 'admin',
+    canExport: role === 'admin' || role === 'analyst',
     isViewer: role === 'viewer',
   };
 }

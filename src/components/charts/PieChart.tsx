@@ -60,7 +60,11 @@ export function SpendingPieChart({ data }: SpendingPieChartProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div
+      className="space-y-4"
+      role="img"
+      aria-label="Expense distribution by category pie chart"
+    >
       <ResponsiveContainer width="100%" height={200}>
         <PieChart>
           <Pie
@@ -88,13 +92,13 @@ export function SpendingPieChart({ data }: SpendingPieChartProps) {
       </ResponsiveContainer>
 
       {/* Legend */}
-      <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+      <div className="grid gap-2 sm:grid-cols-2">
         {data.map((entry) => {
           const color = getCategoryColor(entry.category);
           return (
             <div
               key={entry.category}
-              className="flex items-center gap-2 text-xs"
+              className="flex items-center gap-2 rounded-xl bg-gray-50/80 px-3 py-2 text-xs dark:bg-gray-900/30"
             >
               <span
                 className="w-2.5 h-2.5 rounded-full flex-shrink-0"
